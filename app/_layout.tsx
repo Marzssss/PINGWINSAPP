@@ -1,33 +1,43 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { Stack, useRouter, useRootNavigationState } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import "react-native-reanimated";
+import "../global.css";
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useStore } from "@src/store/useStore";
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from "expo-router";
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: "index",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Prevent splash screen auto-hide
 SplashScreen.preventAutoHideAsync();
+
+// Custom dark theme for PINGWINS
+const PingwinsDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: "#0A0A0A",
+    card: "#1A1A1A",
+    text: "#FFFFFF",
+    border: "#2E2E2E",
+    primary: "#00D632",
+  },
+};
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -46,14 +56,30 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const router = useRouter();
+  const rootNavigationState = useRootNavigationState();
+  const { hasCompletedOnboarding, isAuthenticated } = useStore();
+
+  useEffect(() => {
+    if (!rootNavigationState?.key) return;
+
+    // Route based on auth state
+    if (!hasCompletedOnboarding) {
+      router.replace("/(onboarding)/welcome");
+    } else if (isAuthenticated) {
+      router.replace("/(tabs)/home");
+    }
+  }, [rootNavigationState?.key, hasCompletedOnboarding, isAuthenticated]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+    <ThemeProvider value={PingwinsDarkTheme}>
+      <StatusBar style="light" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(onboarding)" />
+        <Stack.Screen name="(tabs)" />
       </Stack>
     </ThemeProvider>
   );
 }
+
