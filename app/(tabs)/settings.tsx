@@ -4,19 +4,35 @@
  */
 import React from "react";
 import { View, Text, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import { Screen } from "@src/components/ui/ScreenWrapper";
 import { Card, Button } from "@src/components/ui";
 import { useStore } from "@src/store/useStore";
 import { getDeviceIdentity } from "@src/utils/deviceIdentity";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@src/constants/tokens";
+import { useOnboarding } from "../../hooks/useOnboarding";
 
 export default function SettingsScreen() {
-    const { user, resetState } = useStore();
+    const router = useRouter();
+    const { session, resetState } = useStore();
     const deviceIdentity = getDeviceIdentity();
+
+    const userId = session?.user?.id ?? null;
+    const { loading, ready, needsAccount, needsCompletion } = useOnboarding(userId);
+    const isVerified = ready;
+    const isPending = needsCompletion;
 
     const handleLogout = () => {
         resetState();
+    };
+
+    const handleContinueStripeSetup = () => {
+        if (isPending) {
+            router.push("/onboarding/continue");
+        } else {
+            router.push("/onboarding/start");
+        }
     };
 
     return (
@@ -35,7 +51,7 @@ export default function SettingsScreen() {
                     <SettingsItem
                         icon="call-outline"
                         label="Phone Number"
-                        value={user?.phone ? `+1 ${user.phone}` : "Not set"}
+                        value={session?.user?.phone ? `+1 ${session.user.phone}` : "Not set"}
                     />
                     <SettingsItem
                         icon="phone-portrait-outline"
@@ -43,6 +59,46 @@ export default function SettingsScreen() {
                         value={deviceIdentity.platform.toUpperCase()}
                         isLast
                     />
+                </Card>
+            </View>
+
+            {/* Payment Account Section */}
+            <View className="mb-8">
+                <Text className="text-foreground-muted text-xs font-semibold mb-2 uppercase tracking-widest pl-2">
+                    Payment Account
+                </Text>
+                <Card variant="default" padding="none" className="overflow-hidden">
+                    <View className="px-4 py-4 bg-surface flex-row justify-between items-center">
+                        <View className="flex-row items-center flex-1">
+                            <View className="w-8 items-center mr-3">
+                                <Ionicons
+                                    name={isVerified ? "checkmark-circle" : isPending ? "time-outline" : "alert-circle-outline"}
+                                    size={20}
+                                    color={isVerified ? colors.success : isPending ? colors.info : colors.warning}
+                                />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="text-foreground text-base font-medium">
+                                    Payment Account Status
+                                </Text>
+                                <Text
+                                    className="text-sm mt-0.5"
+                                    style={{ color: isVerified ? colors.success : isPending ? colors.info : colors.warning }}
+                                >
+                                    {loading ? "Checking..." : isVerified ? "Stripe Verified" : isPending ? "Pending Verification" : "Setup Required"}
+                                </Text>
+                            </View>
+                        </View>
+                        {!isVerified && !loading && (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onPress={handleContinueStripeSetup}
+                            >
+                                {isPending ? "Check Status" : "Start Setup"}
+                            </Button>
+                        )}
+                    </View>
                 </Card>
             </View>
 

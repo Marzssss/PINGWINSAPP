@@ -4,11 +4,14 @@ import { useFonts } from "expo-font";
 import { Stack, useRouter, useRootNavigationState } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
+import { AppState, AppStateStatus } from "react-native";
 import "react-native-reanimated";
 import "../global.css";
 
 import { useStore } from "@src/store/useStore";
+import { supabase } from "@src/lib/supabase";
+import { useOnboarding } from "../hooks/useOnboarding";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -16,10 +19,8 @@ export const unstable_settings = {
   initialRouteName: "index",
 };
 
-// Prevent splash screen auto-hide
 SplashScreen.preventAutoHideAsync();
 
-// Custom dark theme for PINGWINS
 const PingwinsDarkTheme = {
   ...DarkTheme,
   colors: {
@@ -58,18 +59,64 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();
-  const { hasCompletedOnboarding, isAuthenticated } = useStore();
+  const { session, setSession, hasCompletedOnboarding, completeOnboarding } = useStore();
+  const [authReady, setAuthReady] = useState(false);
+  const appState = useRef(AppState.currentState);
+
+  const userId = session?.user?.id ?? null;
+  const { loading: onboardingLoading, needsAccount, needsCompletion, ready, refetch } = useOnboarding(userId);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthReady(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+        if (session && !ready) {
+          refetch();
+        }
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+    return () => subscription.remove();
+  }, [session, ready, refetch]);
 
   useEffect(() => {
     if (!rootNavigationState?.key) return;
+    if (!authReady) return;
 
-    // Route based on auth state
-    if (!hasCompletedOnboarding) {
+    if (!session) {
       router.replace("/(onboarding)/welcome");
-    } else if (isAuthenticated) {
+      return;
+    }
+
+    if (onboardingLoading) return;
+
+    if (needsAccount) {
+      router.replace("/onboarding/start");
+      return;
+    }
+
+    if (ready && !hasCompletedOnboarding) {
+      completeOnboarding();
+    }
+
+    if (ready || needsCompletion) {
       router.replace("/(tabs)/home");
     }
-  }, [rootNavigationState?.key, hasCompletedOnboarding, isAuthenticated]);
+  }, [rootNavigationState?.key, authReady, session, onboardingLoading, needsAccount, needsCompletion, ready]);
 
   return (
     <ThemeProvider value={PingwinsDarkTheme}>
@@ -77,9 +124,9 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(onboarding)" />
+        <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
       </Stack>
     </ThemeProvider>
   );
 }
-
