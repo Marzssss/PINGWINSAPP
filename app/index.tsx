@@ -2,22 +2,24 @@
  * Splash Screen / Entry Point
  * Animated PWID graphic with fade transition to onboarding.
  */
-import React, { useEffect } from "react";
-import { View, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image } from "react-native";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withTiming,
-    withSequence,
     withDelay,
     Easing,
 } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { useStore } from "@src/store/useStore";
+import { supabase } from "@src/lib/supabase";
+import { shadows } from "@src/constants/tokens";
 
 export default function SplashScreen() {
     const router = useRouter();
-    const { hasCompletedOnboarding, isAuthenticated } = useStore();
+    const { session, setSession, hasCompletedOnboarding } = useStore();
+    const [authChecked, setAuthChecked] = useState(false);
 
     // Animation values
     const logoOpacity = useSharedValue(0);
@@ -39,19 +41,28 @@ export default function SplashScreen() {
     }));
 
     useEffect(() => {
-        // Animate in
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setAuthChecked(true);
+        });
+    }, []);
+
+    useEffect(() => {
         logoOpacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) });
         logoScale.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.back(1.5)) });
         textOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
+    }, []);
 
-        // Navigate after animation
+    useEffect(() => {
+        if (!authChecked) return;
+
         const timer = setTimeout(() => {
             containerOpacity.value = withTiming(0, { duration: 300 });
 
             setTimeout(() => {
-                if (!hasCompletedOnboarding) {
+                if (!session) {
                     router.replace("/(onboarding)/welcome");
-                } else if (isAuthenticated) {
+                } else if (hasCompletedOnboarding) {
                     router.replace("/(tabs)/home");
                 } else {
                     router.replace("/(onboarding)/welcome");
@@ -60,7 +71,7 @@ export default function SplashScreen() {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [authChecked, session, hasCompletedOnboarding]);
 
     return (
         <Animated.View
@@ -69,8 +80,16 @@ export default function SplashScreen() {
         >
             {/* PWID-Inspired Logo */}
             <Animated.View style={logoStyle} className="items-center">
-                <View className="w-24 h-24 bg-primary rounded-xl items-center justify-center mb-6">
-                    <Text className="text-background text-5xl font-bold">P</Text>
+                <View
+                    className="w-24 h-24 bg-surface-elevated rounded-2xl items-center justify-center mb-6 border border-primary/35"
+                    style={shadows.glowGold}
+                >
+                    <Image
+                        source={require("../assets/images/pingwins-logo.png")}
+                        style={{ width: 84, height: 84 }}
+                        resizeMode="contain"
+                        accessibilityLabel="PINGWINS logo"
+                    />
                 </View>
             </Animated.View>
 

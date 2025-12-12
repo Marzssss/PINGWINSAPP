@@ -6,42 +6,42 @@
 
 export const colors = {
     // Core backgrounds (Apple Dark Mode standard)
-    background: "#000000", // Pure black for OLED
+    background: "#05060B",
     surface: {
-        DEFAULT: "#1C1C1E", // Secondary System Background
-        elevated: "#2C2C2E", // Tertiary System Background
-        overlay: "#3A3A3C", // Modal/Overlay
-        inset: "#000000", // Grouped Table Background
+        DEFAULT: "#0B1220",
+        elevated: "#0F1A30",
+        overlay: "#14264A",
+        inset: "#05060B",
     },
 
-    // Primary (Cash-App Green + Apple Polish)
+    // Primary (Gold)
     primary: {
-        DEFAULT: "#00D632", // Cash App Green
-        hover: "#00B82B",
-        active: "#009E25",
-        muted: "rgba(0, 214, 50, 0.15)",
-        text: "#FFFFFF",
+        DEFAULT: "#D6B76A",
+        hover: "#CBAA5F",
+        active: "#B8913E",
+        muted: "rgba(214, 183, 106, 0.15)",
+        text: "#05060B",
     },
 
     // Text (Apple iOS System Colors)
     foreground: {
-        DEFAULT: "#FFFFFF", // Label
-        muted: "#8E8E93", // Secondary Label
-        subtle: "#48484A", // Tertiary Label
-        inverse: "#000000",
+        DEFAULT: "#EAF2FF",
+        muted: "#9FB1D1",
+        subtle: "#5C6F91",
+        inverse: "#05060B",
     },
 
     // Status
-    success: "#30D158", // iOS Green
-    warning: "#FFD60A", // iOS Yellow
-    error: "#FF453A", // iOS Red
-    info: "#0A84FF", // iOS Blue
+    success: "#2EE59D",
+    warning: "#FFC857",
+    error: "#FF4D4D",
+    info: "#38E1FF", // Neon cyan
 
     // Borders & Separators
     border: {
-        DEFAULT: "#38383A", // Separator
-        subtle: "#2C2C2E",
-        focus: "rgba(0, 214, 50, 0.5)", // Focus ring
+        DEFAULT: "#1D2A3A",
+        subtle: "#121A2C",
+        focus: "rgba(56, 225, 255, 0.60)",
     },
 
     // Overlays
@@ -133,13 +133,20 @@ export const shadows = {
         shadowRadius: 4.65,
         elevation: 8,
     },
-    glow: {
-        shadowColor: "#00D632",
+    glowNeon: {
+        shadowColor: colors.info,
         shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.4,
-        shadowRadius: 10,
+        shadowOpacity: 0.45,
+        shadowRadius: 14,
         elevation: 10,
-    }
+    },
+    glowGold: {
+        shadowColor: colors.primary.DEFAULT,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.28,
+        shadowRadius: 12,
+        elevation: 8,
+    },
 } as const;
 
 export const timing = {

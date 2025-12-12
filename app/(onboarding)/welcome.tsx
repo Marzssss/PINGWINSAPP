@@ -3,12 +3,12 @@
  * First onboarding screen with hero text and Get Started button.
  */
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "@src/components/ui/ScreenWrapper";
 import { Button } from "@src/components/ui";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "@src/constants/tokens";
+import { colors, shadows } from "@src/constants/tokens";
 
 export default function WelcomeScreen() {
     const router = useRouter();
@@ -19,8 +19,22 @@ export default function WelcomeScreen() {
                 {/* Hero Section */}
                 <View className="items-center mb-12">
                     {/* Logo Mark */}
-                    <View className="w-20 h-20 bg-primary rounded-[20px] items-center justify-center mb-8 shadow-glow">
-                        <Text className="text-black text-4xl font-bold">P</Text>
+                    <View
+                        className="w-32 h-32 mb-8 rounded-[28px]"
+                        style={{
+                            ...shadows.glowGold,
+                            shadowOpacity: 0.5,
+                            shadowRadius: 20,
+                        }}
+                    >
+                        <View className="w-full h-full bg-surface-overlay rounded-[28px] items-center justify-center border-2 border-primary/50 overflow-hidden">
+                            <Image
+                                source={require("../../assets/images/93A6CA43-00EC-4D59-9993-74E63D42C2A4 (1).png")}
+                                style={{ width: "100%", height: "100%" }}
+                                resizeMode="cover"
+                                accessibilityLabel="PINGWINS logo"
+                            />
+                        </View>
                     </View>
 
                     {/* Hero Text */}

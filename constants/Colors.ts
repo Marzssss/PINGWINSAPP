@@ -1,5 +1,5 @@
 const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
+const tintColorDark = '#38E1FF'; // neon cyan
 
 export default {
   light: {
@@ -10,10 +10,10 @@ export default {
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#fff',
-    background: '#000',
+    text: '#EAF2FF',
+    background: '#05060B',
     tint: tintColorDark,
-    tabIconDefault: '#ccc',
+    tabIconDefault: '#5C6F91',
     tabIconSelected: tintColorDark,
   },
 };

@@ -12,13 +12,14 @@ import Animated, {
     withSpring,
     withDelay,
     withSequence,
-    runOnJS,
 } from "react-native-reanimated";
 import { Button } from "@src/components/ui";
 import { Ionicons } from "@expo/vector-icons";
+import { useStore } from "@src/store/useStore";
 
 export default function SuccessScreen() {
     const router = useRouter();
+    const { completeOnboarding } = useStore();
 
     // Animation values
     const checkScale = useSharedValue(0);
@@ -58,6 +59,7 @@ export default function SuccessScreen() {
     }, []);
 
     const handleContinue = () => {
+        completeOnboarding();
         router.replace("/(tabs)/home");
     };
 

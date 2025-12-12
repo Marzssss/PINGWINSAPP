@@ -13,6 +13,7 @@ import Animated, {
     withTiming,
     interpolateColor,
 } from "react-native-reanimated";
+import { colors as themeColors } from "@src/constants/tokens";
 
 interface InputProps extends Omit<TextInputProps, "style"> {
     label?: string;
@@ -66,7 +67,10 @@ export function Input({
         const borderColor = interpolateColor(
             focusProgress.value,
             [0, 1],
-            [hasError ? "#FF453A" : "#38383A", hasError ? "#FF453A" : "#00D632"]
+            [
+                hasError ? themeColors.error : themeColors.border.DEFAULT,
+                hasError ? themeColors.error : themeColors.info,
+            ]
         );
 
         return {
@@ -86,7 +90,7 @@ export function Input({
             <Animated.View
                 style={[
                     borderStyle,
-                    { borderRadius: 12, backgroundColor: "#2C2C2E" }, // surface-elevated
+                    { borderRadius: 12, backgroundColor: themeColors.surface.elevated },
                 ]}
                 className="w-full h-[56px] justify-center"
             >
@@ -95,12 +99,13 @@ export function Input({
                     onChangeText={handleChangeText}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
-                    placeholderTextColor="#6B6B6B"
+                    placeholderTextColor={themeColors.foreground.subtle}
                     keyboardType={phoneFormat ? "phone-pad" : props.keyboardType}
                     accessibilityLabel={label}
                     className="flex-1 px-4 text-foreground text-lg"
-                    style={{ outlineStyle: 'none' }} // Web fix
-                    selectionColor="#00D632"
+                    // Web: remove default focus outline (type-safe)
+                    style={{ outlineWidth: 0, outlineColor: "transparent", outlineStyle: "solid" }}
+                    selectionColor={themeColors.info}
                     {...props}
                 />
             </Animated.View>

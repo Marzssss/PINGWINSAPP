@@ -4,8 +4,9 @@
  */
 import React from "react";
 import { View, type ViewProps } from "react-native";
+import { shadows } from "@src/constants/tokens";
 
-type CardVariant = "default" | "elevated" | "outlined" | "glass";
+type CardVariant = "default" | "filled" | "elevated" | "outlined" | "glass" | "neon";
 type CardPadding = "none" | "sm" | "md" | "lg";
 
 interface CardProps extends ViewProps {
@@ -15,9 +16,11 @@ interface CardProps extends ViewProps {
 
 const variantStyles = {
     default: "bg-surface border border-border-subtle",
-    elevated: "bg-surface-elevated border-t border-white/5 shadow-lg",
+    filled: "bg-surface-elevated border border-border-subtle",
+    elevated: "bg-surface-elevated border border-border-subtle shadow-lg",
     outlined: "bg-transparent border border-border",
-    glass: "bg-black/80 border border-white/10", // Requires BlurView for real glass, fallback for now
+    glass: "bg-black/60 border border-white/10", // Requires BlurView for real glass, fallback for now
+    neon: "bg-surface border border-neon/40",
 };
 
 const paddingStyles = {
@@ -31,9 +34,12 @@ export function Card({
     variant = "default",
     padding = "md",
     className,
+    style,
     children,
     ...props
 }: CardProps) {
+    const variantShadowStyle = variant === "neon" ? shadows.glowNeon : undefined;
+
     return (
         <View
             className={`
@@ -42,6 +48,7 @@ export function Card({
         ${paddingStyles[padding]}
         ${className || ""}
       `}
+            style={[variantShadowStyle, style]}
             {...props}
         >
             {children}

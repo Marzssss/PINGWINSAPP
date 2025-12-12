@@ -9,34 +9,45 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                // PINGWINS Core Palette - Dark Mode Primary
-                background: "#0A0A0A",
+                // PINGWINS Neon/Gold Palette - Dark Mode
+                background: "#05060B",
                 surface: {
-                    DEFAULT: "#1A1A1A",
-                    elevated: "#242424",
-                    overlay: "#2E2E2E",
+                    DEFAULT: "#0B1220",
+                    elevated: "#0F1A30",
+                    overlay: "#14264A",
                 },
-                // Primary Green (Cash-App style)
+                // Primary = Gold
                 primary: {
-                    DEFAULT: "#00D632",
-                    hover: "#00B82B",
-                    muted: "rgba(0, 214, 50, 0.15)",
+                    DEFAULT: "#D6B76A",
+                    hover: "#CBAA5F",
+                    muted: "rgba(214, 183, 106, 0.15)",
+                },
+                // Accent = Neon Cyan
+                neon: {
+                    DEFAULT: "#38E1FF",
+                    muted: "rgba(56, 225, 255, 0.15)",
                 },
                 // Text Colors
                 foreground: {
-                    DEFAULT: "#FFFFFF",
-                    muted: "#A0A0A0",
-                    subtle: "#6B6B6B",
+                    DEFAULT: "#EAF2FF",
+                    muted: "#9FB1D1",
+                    subtle: "#5C6F91",
                 },
                 // Status Colors
-                success: "#00D632",
-                warning: "#FFB800",
-                error: "#FF4444",
+                success: "#2EE59D",
+                warning: "#FFC857",
+                error: "#FF4D4D",
                 // Border Colors
                 border: {
-                    DEFAULT: "#2E2E2E",
-                    focus: "#00D632",
+                    DEFAULT: "#1D2A3A",
+                    subtle: "#121A2C",
+                    focus: "#38E1FF",
                 },
+            },
+            // NativeWind supports `shadow-*` mapping; this is mainly useful on web.
+            boxShadow: {
+                glow: "0 0 24px rgba(56, 225, 255, 0.35)",
+                "glow-gold": "0 0 22px rgba(214, 183, 106, 0.28)",
             },
             fontFamily: {
                 sans: ["Inter", "system-ui", "sans-serif"],

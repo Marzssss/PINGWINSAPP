@@ -11,8 +11,8 @@ import {
     Text,
     ActivityIndicator,
     type PressableProps,
+    type GestureResponderEvent,
     Pressable,
-    View,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -22,8 +22,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { isNative } from "@src/utils/platform";
 import { Ionicons } from "@expo/vector-icons";
+import { colors as themeColors, shadows } from "@src/constants/tokens";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "outline";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "neon";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends Omit<PressableProps, "children" | "style"> {
@@ -33,28 +34,34 @@ interface ButtonProps extends Omit<PressableProps, "children" | "style"> {
     loading?: boolean;
     fullWidth?: boolean;
     icon?: keyof typeof Ionicons.glyphMap;
+    className?: string;
 }
 
 const variantStyles = {
     primary: {
-        container: "bg-primary border-transparent shadow-sm",
+        container: "bg-primary border-primary/30",
         text: "text-background font-semibold",
-        indicator: "#000000",
+        indicator: themeColors.primary.text,
     },
     secondary: {
         container: "bg-surface-elevated border-border-subtle",
         text: "text-foreground font-semibold",
-        indicator: "#FFFFFF",
+        indicator: themeColors.foreground.DEFAULT,
     },
     outline: {
         container: "bg-transparent border-border",
         text: "text-foreground font-medium",
-        indicator: "#FFFFFF",
+        indicator: themeColors.foreground.DEFAULT,
     },
     ghost: {
         container: "bg-transparent border-transparent",
-        text: "text-primary font-medium",
-        indicator: "#00D632",
+        text: "text-neon font-medium",
+        indicator: themeColors.info,
+    },
+    neon: {
+        container: "bg-neon-muted border-neon/60",
+        text: "text-neon font-semibold",
+        indicator: themeColors.info,
     },
 };
 
@@ -86,7 +93,10 @@ export function Button({
     fullWidth = false,
     disabled,
     onPress,
+    onPressIn,
+    onPressOut,
     icon,
+    className,
     ...props
 }: ButtonProps) {
     const scale = useSharedValue(1);
@@ -95,27 +105,44 @@ export function Button({
     const styles = variantStyles[variant];
     const sizes = sizeStyles[size];
 
+    const variantShadowStyle =
+        variant === "primary"
+            ? shadows.glowGold
+            : variant === "neon"
+                ? shadows.glowNeon
+                : undefined;
+
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [{ scale: scale.value }],
         };
     });
 
-    const handlePressIn = () => {
+    const handlePressIn = (event: GestureResponderEvent) => {
         if (isDisabled) return;
         scale.value = withSpring(0.96, { damping: 15, stiffness: 400 });
         if (isNative) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
+        onPressIn?.(event);
     };
 
-    const handlePressOut = () => {
+    const handlePressOut = (event: GestureResponderEvent) => {
         if (isDisabled) return;
         scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+        onPressOut?.(event);
     };
+
+    const iconColor =
+        variant === "primary"
+            ? themeColors.primary.text
+            : variant === "neon" || variant === "ghost"
+                ? themeColors.info
+                : themeColors.foreground.DEFAULT;
 
     return (
         <AnimatedPressable
+            {...props}
             onPress={onPress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
@@ -127,9 +154,9 @@ export function Button({
                 ${sizes.container}
                 ${fullWidth ? "w-full" : "self-start"}
                 ${isDisabled ? "opacity-60" : ""}
+                ${className || ""}
             `}
-            style={[animatedStyle, { gap: sizes.gap }]}
-            {...props}
+            style={[animatedStyle, variantShadowStyle, { gap: sizes.gap }]}
         >
             {loading ? (
                 <ActivityIndicator
@@ -142,7 +169,7 @@ export function Button({
                         <Ionicons
                             name={icon}
                             size={size === 'sm' ? 16 : 20}
-                            color={variant === 'primary' ? '#000000' : '#FFFFFF'}
+                            color={iconColor}
                         />
                     )}
                     <Text className={`${styles.text} ${sizes.text} text-center`}>

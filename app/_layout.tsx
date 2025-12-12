@@ -12,6 +12,7 @@ import "../global.css";
 import { useStore } from "@src/store/useStore";
 import { supabase } from "@src/lib/supabase";
 import { useOnboarding } from "../hooks/useOnboarding";
+import { colors as themeColors } from "@src/constants/tokens";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -25,11 +26,11 @@ const PingwinsDarkTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: "#0A0A0A",
-    card: "#1A1A1A",
-    text: "#FFFFFF",
-    border: "#2E2E2E",
-    primary: "#00D632",
+    background: themeColors.background,
+    card: themeColors.surface.DEFAULT,
+    text: themeColors.foreground.DEFAULT,
+    border: themeColors.border.DEFAULT,
+    primary: themeColors.primary.DEFAULT,
   },
 };
 

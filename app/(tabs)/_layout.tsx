@@ -23,10 +23,10 @@ function TabIcon({
       <Ionicons
         name={focused ? icon : `${icon}-outline` as any}
         size={24}
-        color={focused ? colors.primary.DEFAULT : colors.foreground.muted}
+        color={focused ? colors.info : colors.foreground.muted}
       />
       <Text
-        className={`text-[10px] font-medium ${focused ? "text-primary" : "text-foreground-muted"
+        className={`text-[10px] font-medium ${focused ? "text-neon" : "text-foreground-muted"
           }`}
       >
         {label}

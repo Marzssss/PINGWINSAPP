@@ -1,44 +1,46 @@
 /**
  * Global App Store (Zustand)
- * Stubbed auth state for UI flow testing.
- * No persistence in this phase - pure in-memory state.
+ * Manages auth state with Supabase sessions.
  */
 import { create } from "zustand";
+import { Session } from "@supabase/supabase-js";
 
-interface User {
-    phone: string;
-}
-
-interface AppState {
-    // Auth state (stubbed)
+interface StoreState {
+    session: Session | null;
+    user: { id: string; email: string | null; phone: string | null } | null;
     isAuthenticated: boolean;
     hasCompletedOnboarding: boolean;
 
-    // User data (stub)
-    user: User | null;
-
-    // Actions
-    setAuthenticated: (value: boolean) => void;
+    setSession: (session: Session | null) => void;
     completeOnboarding: () => void;
-    setUser: (user: User | null) => void;
     resetState: () => void;
 }
 
 const initialState = {
+    session: null,
+    user: null,
     isAuthenticated: false,
     hasCompletedOnboarding: false,
-    user: null,
 };
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<StoreState>((set) => ({
     ...initialState,
 
-    setAuthenticated: (value: boolean) => set({ isAuthenticated: value }),
+    setSession: (session: Session | null) =>
+        set({
+            session,
+            user: session?.user
+                ? {
+                    id: session.user.id,
+                    email: session.user.email ?? null,
+                    phone: (session.user.phone as string | undefined) ?? null,
+                }
+                : null,
+            isAuthenticated: !!session,
+        }),
 
     completeOnboarding: () =>
-        set({ hasCompletedOnboarding: true, isAuthenticated: true }),
-
-    setUser: (user: User | null) => set({ user }),
+        set({ hasCompletedOnboarding: true }),
 
     resetState: () => set(initialState),
 }));
